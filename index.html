@@ -282,8 +282,6 @@
                     { id: 'prep_breakfast', text: 'Prepare breakfast', icon: '🥣' },
                     { id: 'clothes', text: 'Lay out clothes', icon: '👕' },
                     { id: 'charge_phone', text: 'Charge phone and headset', icon: '🔌' },
-                    { id: 'pack_bag', text: 'Pack bag', icon: '💼' },
-                    { id: 'id_card', text: 'Pack id card', icon: '🪪' },
                     { id: 'meditate', text: 'Meditate', icon: '🧘' },
                     { id: 'load_dishwasher', text: 'Load dishwasher', icon: '🍴' }
                 ];
@@ -424,7 +422,7 @@
 
                     taskElement.innerHTML = `
                         <div class="task-content">
-                            <div class="task-checkbox" id="checkbox-${task.id}" onclick="app.toggleTask('${task.id}')">
+                            <div class="task-checkbox" id="checkbox-${task.id}">
                                 ${this.completedTasks[task.id] ? '<i data-lucide="check" class="check-icon"></i>' : ''}
                             </div>
                             <div class="task-details">
@@ -439,6 +437,12 @@
                         taskElement.querySelector('.task-checkbox').classList.add('checked');
                         taskElement.querySelector('.task-text').classList.add('completed');
                     }
+
+                    // Add event listener properly
+                    const checkbox = taskElement.querySelector('.task-checkbox');
+                    checkbox.addEventListener('click', () => {
+                        this.toggleTask(task.id);
+                    });
 
                     taskList.appendChild(taskElement);
                 });
