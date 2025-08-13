@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Function To-Do App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .time-display {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .greeting {
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+
+        .progress-section {
+            margin-bottom: 1rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.75rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #34d399, #10b981);
+            width: 0%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-out;
+        }
+
+        .encouragement {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-item {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.completed {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .task-checkbox {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:hover {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+
+        .task-checkbox.checked {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .task-details {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-grow: 1;
+        }
+
+        .task-icon {
+            font-size: 1.5rem;
+        }
+
+        .task-text {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #10b981;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .footer p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .check-icon {
+            width: 1rem;
+            height: 1rem;
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -8px, 0);
+            }
+            70% {
+                transform: translate3d(0, -4px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <div id="time-icon"></div>
+                    <h1 id="routine-title">Morning Routine</h1>
+                </div>
+                <div class="time-display" id="current-time"></div>
+            </div>
+            
+            <p class="greeting" id="greeting">Good morning! 🌅</p>
+            
+            <!-- Progress Bar -->
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span>Progress</span>
+                    <span id="progress-text">0 of 7</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            
+            <p class="encouragement" id="encouragement">You've got this! Take it one task at a time.</p>
+        </div>
+
+        <!-- Task List -->
+        <div class="task-list" id="task-list">
+            <!-- Tasks will be dynamically inserted here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p id="footer-message">Building momentum for a productive day! ⚡</p>
+        </div>
+    </div>
+
+    <script>
+        class ExecutiveFunctionTodo {
+            constructor() {
+                this.completedTasks = {};
+                this.currentTime = new Date();
+                
+                this.morningTasks = [
+                    { id: 'shower', text: 'Take a shower', icon: '🚿' },
+                    { id: 'breakfast', text: 'Eat breakfast', icon: '🥞' },
+                    { id: 'traffic', text: 'Check traffic app', icon: '🚗' },
+                    { id: 'calendar', text: 'Check calendar', icon: '📅' },
+                    { id: 'coffee', text: 'Make/get coffee', icon: '☕' },
+                    { id: 'bed', text: 'Make the bed', icon: '🛏️' },
+                    { id: 'dishwasher', text: 'Empty dishwasher', icon: '🍽️' }
+                ];
+
+                this.eveningTasks = [
+                    { id: 'prep_breakfast', text: 'Prepare breakfast', icon: '🥣' },
+                    { id: 'clothes', text: 'Lay out clothes', icon: '👕' },
+                    { id: 'charge_phone', text: 'Charge phone and headset', icon: '🔌' },
+                    { id: 'meditate', text: 'Meditate', icon: '🧘' },
+                    { id: 'load_dishwasher', text: 'Load dishwasher', icon: '🍴' }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.updateTime();
+                this.render();
+                
+                // Update time every minute
+                setInterval(() => {
+                    this.updateTime();
+                    this.updateTimeDisplay();
+                }, 60000);
+            }
+
+            updateTime() {
+                this.currentTime = new Date();
+            }
+
+            isEvening() {
+                const hour = this.currentTime.getHours();
+                return hour >= 18 || hour < 6;
+            }
+
+            isMorning() {
+                const hour = this.currentTime.getHours();
+                return hour >= 6 && hour < 12;
+            }
+
+            getCurrentTasks() {
+                return this.isEvening() ? this.eveningTasks : this.morningTasks;
+            }
+
+            getGreeting() {
+                const hour = this.currentTime.getHours();
+                if (hour < 12) return "Good morning! 🌅";
+                if (hour < 17) return "Good afternoon! ☀️";
+                if (hour < 21) return "Good evening! 🌆";
+                return "Getting ready for tomorrow? 🌙";
+            }
+
+            getEncouragement() {
+                const tasks = this.getCurrentTasks();
+                const completedCount = tasks.filter(task => this.completedTasks[task.id]).length;
+                const progressPercentage = (completedCount / tasks.length) * 100;
+
+                if (completedCount === 0) return "You've got this! Take it one task at a time.";
+                if (completedCount === tasks.length) return "Amazing work! You completed everything! 🎉";
+                if (progressPercentage >= 75) return "You're almost there! Just a few more.";
+                if (progressPercentage >= 50) return "Great progress! You're doing wonderful.";
+                return "Nice start! Every task completed is a win.";
+            }
+
+            toggleTask(taskId) {
+                this.completedTasks[taskId] = !this.completedTasks[taskId];
+                this.updateProgress();
+                this.updateTaskDisplay(taskId);
+            }
+
+            updateProgress() {
+                const tasks = this.getCurrentTasks();
+                const completedCount = tasks.filter(task => this.completedTasks[task.id]).length;
+                const progressPercentage = (completedCount / tasks.length) * 100;
+
+                document.getElementById('progress-text').textContent = `${completedCount} of ${tasks.length}`;
+                document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+                document.getElementById('encouragement').textContent = this.getEncouragement();
+            }
+
+            updateTaskDisplay(taskId) {
+                const taskElement = document.getElementById(`task-${taskId}`);
+                const checkboxElement = document.getElementById(`checkbox-${taskId}`);
+                const textElement = document.getElementById(`text-${taskId}`);
+                const isCompleted = this.completedTasks[taskId];
+
+                if (isCompleted) {
+                    taskElement.classList.add('completed');
+                    checkboxElement.classList.add('checked');
+                    checkboxElement.innerHTML = '<i data-lucide="check" class="check-icon"></i>';
+                    textElement.classList.add('completed');
+                } else {
+                    taskElement.classList.remove('completed');
+                    checkboxElement.classList.remove('checked');
+                    checkboxElement.innerHTML = '';
+                    textElement.classList.remove('completed');
+                }
+
+                // Re-render Lucide icons
+                lucide.createIcons();
+            }
+
+            updateTimeDisplay() {
+                const timeString = this.currentTime.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                document.getElementById('current-time').textContent = timeString;
+            }
+
+            render() {
+                // Update header
+                const isEvening = this.isEvening();
+                document.getElementById('routine-title').textContent = isEvening ? 'Evening Routine' : 'Morning Routine';
+                document.getElementById('greeting').textContent = this.getGreeting();
+                
+                const timeIconHtml = isEvening ? '<i data-lucide="moon" class="icon"></i>' : '<i data-lucide="sun" class="icon"></i>';
+                document.getElementById('time-icon').innerHTML = timeIconHtml;
+
+                this.updateTimeDisplay();
+
+                // Update footer
+                const footerMessage = isEvening ? 'Setting yourself up for a great tomorrow! 🌟' : 'Building momentum for a productive day! ⚡';
+                document.getElementById('footer-message').textContent = footerMessage;
+
+                // Render tasks
+                this.renderTasks();
+
+                // Update progress
+                this.updateProgress();
+
+                // Initialize Lucide icons
+                lucide.createIcons();
+            }
+
+            renderTasks() {
+                const tasks = this.getCurrentTasks();
+                const taskList = document.getElementById('task-list');
+                taskList.innerHTML = '';
+
+                tasks.forEach((task, index) => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-item';
+                    taskElement.id = `task-${task.id}`;
+                    taskElement.style.animationDelay = `${index * 100}ms`;
+
+                    taskElement.innerHTML = `
+                        <div class="task-content">
+                            <div class="task-checkbox" id="checkbox-${task.id}" onclick="app.toggleTask('${task.id}')">
+                                ${this.completedTasks[task.id] ? '<i data-lucide="check" class="check-icon"></i>' : ''}
+                            </div>
+                            <div class="task-details">
+                                <span class="task-icon" role="img" aria-label="${task.text}">${task.icon}</span>
+                                <span class="task-text" id="text-${task.id}">${task.text}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    if (this.completedTasks[task.id]) {
+                        taskElement.classList.add('completed');
+                        taskElement.querySelector('.task-checkbox').classList.add('checked');
+                        taskElement.querySelector('.task-text').classList.add('completed');
+                    }
+
+                    taskList.appendChild(taskElement);
+                });
+            }
+        }
+
+        // Initialize the app
+        const app = new ExecutiveFunctionTodo();
+    </script>
+</body>
+</html>
